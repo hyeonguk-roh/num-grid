@@ -76,6 +76,9 @@ class NumGrid {
         this.titleScreen.style.display = 'none';
         this.gameScreen.style.display = 'block';
         
+        // Force a reflow to ensure the display change takes effect
+        this.gameScreen.offsetHeight;
+        
         this.createGrid();
         this.startPreview();
     }
@@ -92,8 +95,11 @@ class NumGrid {
         this.gridSizeSelect.disabled = false;
         
         // Show title screen, hide game screen
-        this.titleScreen.style.display = 'block';
         this.gameScreen.style.display = 'none';
+        this.titleScreen.style.display = 'block';
+        
+        // Force a reflow to ensure the display change takes effect
+        this.titleScreen.offsetHeight;
     }
 
     updateMultiplier() {

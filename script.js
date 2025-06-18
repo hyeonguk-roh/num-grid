@@ -135,13 +135,22 @@ class NumGrid {
         previewMessage.textContent = 'Memorize the tiles!';
         this.grid.parentElement.insertBefore(previewMessage, this.grid);
 
-        // After 3 seconds, hide the tiles and start the game
+        // Calculate preview time based on grid size
+        const size = parseInt(this.gridSizeSelect.value);
+        let previewTime = 3000; // Default 3 seconds for 2x2 and 4x4
+        if (size === 6 || size === 8) {
+            previewTime = 6000; // 6 seconds for 6x6 and 8x8
+        } else if (size === 10) {
+            previewTime = 10000; // 10 seconds for 10x10
+        }
+
+        // After preview time, hide the tiles and start the game
         setTimeout(() => {
             previewMessage.remove();
             this.hideAllTiles();
             this.startTimer();
             this.isPreviewMode = false;
-        }, 3000);
+        }, previewTime);
     }
 
     hideAllTiles() {
@@ -187,23 +196,17 @@ class NumGrid {
             // Add time bonus
             this.addTime();
             
-            // Mark tiles as matched and remove them
+            // Mark tiles as matched and make them invisible
             tile1.classList.add('matched');
             tile2.classList.add('matched');
             
-            // Animate tiles disappearing
+            // Animate tiles becoming invisible
             setTimeout(() => {
                 tile1.style.opacity = '0';
                 tile2.style.opacity = '0';
                 
-                // Remove tiles after animation
-                setTimeout(() => {
-                    tile1.remove();
-                    tile2.remove();
-                    
-                    // Check if all tiles are matched
-                    this.checkBoardComplete();
-                }, 500);
+                // Check if all tiles are matched
+                this.checkBoardComplete();
             }, 500);
         } else {
             // Reset consecutive matches on failure

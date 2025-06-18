@@ -63,7 +63,15 @@ class NumGrid {
         this.currentMultiplier = 1;
         this.isGameOver = false;
         this.scoreElement.textContent = this.score;
-        this.timerElement.textContent = this.timelessMode.checked ? '∞' : this.timeLeft;
+        
+        // Hide timer in timeless mode
+        if (this.timelessMode.checked) {
+            this.timerElement.parentElement.style.display = 'none';
+        } else {
+            this.timerElement.parentElement.style.display = 'block';
+            this.timerElement.textContent = this.timeLeft;
+        }
+        
         this.startButton.disabled = true;
         this.gridSizeSelect.disabled = true;
         this.timelessMode.disabled = true;
@@ -96,6 +104,9 @@ class NumGrid {
         this.startButton.disabled = false;
         this.gridSizeSelect.disabled = false;
         this.timelessMode.disabled = false;
+        
+        // Reset timer display
+        this.timerElement.parentElement.style.display = 'block';
         
         // Show title screen, hide game screen
         this.gameScreen.style.display = 'none';

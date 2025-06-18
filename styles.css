@@ -249,4 +249,14 @@ body {
     20% { opacity: 1; transform: translate(-50%, 0); }
     80% { opacity: 1; transform: translate(-50%, 0); }
     100% { opacity: 0; transform: translate(-50%, -10px); }
+}
+
+.game-title {
+    text-align: center;
+    color: #2C3E50;
+    font-size: 3em;
+    margin-bottom: 20px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+    font-family: 'Arial', sans-serif;
+    letter-spacing: 2px;
 } 

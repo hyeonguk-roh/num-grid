@@ -12,6 +12,7 @@ class NumGrid {
         this.consecutiveMatches = 0;
         this.multiplierTimer = null;
         this.currentMultiplier = 1;
+        this.isPreviewMode = false;
         this.colors = [
             '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', 
             '#FFEEAD', '#D4A5A5', '#9B59B6', '#3498DB',
@@ -127,6 +128,7 @@ class NumGrid {
     }
 
     startPreview() {
+        this.isPreviewMode = true;
         // Show preview message
         const previewMessage = document.createElement('div');
         previewMessage.className = 'preview-message';
@@ -138,6 +140,7 @@ class NumGrid {
             previewMessage.remove();
             this.hideAllTiles();
             this.startTimer();
+            this.isPreviewMode = false;
         }, 3000);
     }
 
@@ -149,7 +152,8 @@ class NumGrid {
     }
 
     handleTileClick(tile) {
-        if (this.selectedTiles.length === 2 || 
+        if (this.isPreviewMode || 
+            this.selectedTiles.length === 2 || 
             tile.classList.contains('matched') || 
             tile.classList.contains('selected')) {
             return;
@@ -164,34 +168,6 @@ class NumGrid {
         if (this.selectedTiles.length === 2) {
             this.checkMatch();
         }
-    }
-
-    getExistingNumbers() {
-        const existingNumbers = new Set();
-        this.tiles.forEach(tile => {
-            if (!tile.classList.contains('matched')) {
-                existingNumbers.add(parseInt(tile.dataset.number));
-            }
-        });
-        return existingNumbers;
-    }
-
-    generateNewTile() {
-        const size = parseInt(this.gridSizeSelect.value);
-        const totalPairs = (size * size) / 2;
-        const existingNumbers = this.getExistingNumbers();
-        
-        // If there are existing numbers, use one of them
-        if (existingNumbers.size > 0) {
-            const existingNumber = Array.from(existingNumbers)[Math.floor(Math.random() * existingNumbers.size)];
-            const newColor = this.colors[Math.floor(Math.random() * totalPairs)];
-            return { number: existingNumber, color: newColor };
-        }
-        
-        // If no existing numbers, generate a new pair
-        const newNumber = Math.floor(Math.random() * totalPairs) + 1;
-        const newColor = this.colors[Math.floor(Math.random() * totalPairs)];
-        return { number: newNumber, color: newColor };
     }
 
     checkMatch() {
@@ -211,27 +187,23 @@ class NumGrid {
             // Add time bonus
             this.addTime();
             
-            // Generate new random tiles
-            const newTile1 = this.generateNewTile();
-            const newTile2 = this.generateNewTile();
+            // Mark tiles as matched and remove them
+            tile1.classList.add('matched');
+            tile2.classList.add('matched');
             
-            // Update the tiles with new values
-            tile1.dataset.number = newTile1.number;
-            tile1.dataset.color = newTile1.color;
-            tile1.style.backgroundColor = newTile1.color;
-            tile1.textContent = newTile1.number;
-            
-            tile2.dataset.number = newTile2.number;
-            tile2.dataset.color = newTile2.color;
-            tile2.style.backgroundColor = newTile2.color;
-            tile2.textContent = newTile2.number;
-
-            // Hide the tiles after 0.5 seconds
+            // Animate tiles disappearing
             setTimeout(() => {
-                tile1.style.backgroundColor = '#34495E';
-                tile1.textContent = '?';
-                tile2.style.backgroundColor = '#34495E';
-                tile2.textContent = '?';
+                tile1.style.opacity = '0';
+                tile2.style.opacity = '0';
+                
+                // Remove tiles after animation
+                setTimeout(() => {
+                    tile1.remove();
+                    tile2.remove();
+                    
+                    // Check if all tiles are matched
+                    this.checkBoardComplete();
+                }, 500);
             }, 500);
         } else {
             // Reset consecutive matches on failure
@@ -255,6 +227,21 @@ class NumGrid {
         tile1.classList.remove('selected');
         tile2.classList.remove('selected');
         this.selectedTiles = [];
+    }
+
+    checkBoardComplete() {
+        // Check if all tiles are matched
+        const remainingTiles = this.grid.querySelectorAll('.tile:not(.matched)');
+        if (remainingTiles.length === 0) {
+            // Pause the timer
+            clearInterval(this.timer);
+            
+            // Create new board
+            this.grid.innerHTML = '';
+            this.tiles = [];
+            this.createGrid();
+            this.startPreview();
+        }
     }
 
     startTimer() {

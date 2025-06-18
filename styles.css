@@ -345,4 +345,20 @@ body {
     z-index: 100;
     animation: fadeInOut 2s ease-in-out;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.mode-selector {
+    margin: 15px 0;
+    text-align: center;
+}
+
+.mode-selector label {
+    margin-right: 10px;
+    font-weight: bold;
+}
+
+.mode-selector input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
 } 

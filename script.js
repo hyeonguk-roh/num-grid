@@ -6,6 +6,7 @@ class NumGrid {
         this.startButton = document.getElementById('startButton');
         this.newGameButton = document.getElementById('newGameButton');
         this.gridSizeSelect = document.getElementById('gridSize');
+        this.timelessMode = document.getElementById('timelessMode');
         this.titleScreen = document.getElementById('titleScreen');
         this.gameScreen = document.getElementById('gameScreen');
         this.score = 0;
@@ -45,11 +46,11 @@ class NumGrid {
 
     getTimeForGridSize(size) {
         switch (size) {
-            case 2: return 10;  // 2x2: 10 seconds
-            case 4: return 20;  // 4x4: 20 seconds
-            case 6: return 60;  // 6x6: 60 seconds
-            case 8: return 90;  // 8x8: 90 seconds
-            case 10: return 120; // 10x10: 120 seconds
+            case 2: return 15;   // 2x2: 15 seconds
+            case 4: return 30;   // 4x4: 30 seconds
+            case 6: return 60;   // 6x6: 60 seconds
+            case 8: return 120;  // 8x8: 120 seconds
+            case 10: return 300; // 10x10: 300 seconds
             default: return 60;
         }
     }
@@ -57,14 +58,15 @@ class NumGrid {
     startGame() {
         this.score = 0;
         const size = parseInt(this.gridSizeSelect.value);
-        this.timeLeft = this.getTimeForGridSize(size);
+        this.timeLeft = this.timelessMode.checked ? Infinity : this.getTimeForGridSize(size);
         this.consecutiveMatches = 0;
         this.currentMultiplier = 1;
         this.isGameOver = false;
         this.scoreElement.textContent = this.score;
-        this.timerElement.textContent = this.timeLeft;
+        this.timerElement.textContent = this.timelessMode.checked ? '∞' : this.timeLeft;
         this.startButton.disabled = true;
         this.gridSizeSelect.disabled = true;
+        this.timelessMode.disabled = true;
         this.grid.innerHTML = '';
         this.tiles = [];
         if (this.multiplierTimer) {
@@ -93,6 +95,7 @@ class NumGrid {
         this.isGameOver = true;
         this.startButton.disabled = false;
         this.gridSizeSelect.disabled = false;
+        this.timelessMode.disabled = false;
         
         // Show title screen, hide game screen
         this.gameScreen.style.display = 'none';
@@ -120,6 +123,8 @@ class NumGrid {
     }
 
     addTime() {
+        if (this.timelessMode.checked) return; // Don't add time in timeless mode
+        
         const timeBonus = Math.floor(this.consecutiveMatches / 5) + 1;
         this.timeLeft += timeBonus;
         this.timerElement.textContent = this.timeLeft;
@@ -301,6 +306,8 @@ class NumGrid {
     }
 
     startTimer() {
+        if (this.timelessMode.checked) return; // Don't start timer in timeless mode
+        
         this.timer = setInterval(() => {
             this.timeLeft--;
             this.timerElement.textContent = this.timeLeft;

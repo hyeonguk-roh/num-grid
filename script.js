@@ -4,7 +4,10 @@ class NumGrid {
         this.scoreElement = document.getElementById('score');
         this.timerElement = document.getElementById('timer');
         this.startButton = document.getElementById('startButton');
+        this.newGameButton = document.getElementById('newGameButton');
         this.gridSizeSelect = document.getElementById('gridSize');
+        this.titleScreen = document.getElementById('titleScreen');
+        this.gameScreen = document.getElementById('gameScreen');
         this.score = 0;
         this.timeLeft = 60;
         this.timer = null;
@@ -13,6 +16,7 @@ class NumGrid {
         this.multiplierTimer = null;
         this.currentMultiplier = 1;
         this.isPreviewMode = false;
+        this.isGameOver = false;
         this.colors = [
             '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', 
             '#FFEEAD', '#D4A5A5', '#9B59B6', '#3498DB',
@@ -31,6 +35,7 @@ class NumGrid {
         this.tiles = [];
         
         this.startButton.addEventListener('click', () => this.startGame());
+        this.newGameButton.addEventListener('click', () => this.returnToTitle());
         this.gridSizeSelect.addEventListener('change', () => {
             if (this.timer) {
                 this.endGame();
@@ -38,11 +43,24 @@ class NumGrid {
         });
     }
 
+    getTimeForGridSize(size) {
+        switch (size) {
+            case 2: return 10;  // 2x2: 10 seconds
+            case 4: return 20;  // 4x4: 20 seconds
+            case 6: return 60;  // 6x6: 60 seconds
+            case 8: return 90;  // 8x8: 90 seconds
+            case 10: return 120; // 10x10: 120 seconds
+            default: return 60;
+        }
+    }
+
     startGame() {
         this.score = 0;
-        this.timeLeft = 60;
+        const size = parseInt(this.gridSizeSelect.value);
+        this.timeLeft = this.getTimeForGridSize(size);
         this.consecutiveMatches = 0;
         this.currentMultiplier = 1;
+        this.isGameOver = false;
         this.scoreElement.textContent = this.score;
         this.timerElement.textContent = this.timeLeft;
         this.startButton.disabled = true;
@@ -53,8 +71,29 @@ class NumGrid {
             clearTimeout(this.multiplierTimer);
             this.multiplierTimer = null;
         }
+        
+        // Show game screen, hide title screen
+        this.titleScreen.style.display = 'none';
+        this.gameScreen.style.display = 'block';
+        
         this.createGrid();
         this.startPreview();
+    }
+
+    returnToTitle() {
+        if (this.timer) {
+            clearInterval(this.timer);
+        }
+        if (this.multiplierTimer) {
+            clearTimeout(this.multiplierTimer);
+        }
+        this.isGameOver = true;
+        this.startButton.disabled = false;
+        this.gridSizeSelect.disabled = false;
+        
+        // Show title screen, hide game screen
+        this.titleScreen.style.display = 'block';
+        this.gameScreen.style.display = 'none';
     }
 
     updateMultiplier() {
@@ -71,12 +110,6 @@ class NumGrid {
             
             // Remove message after 2 seconds
             setTimeout(() => multiplierMessage.remove(), 2000);
-            
-            // Reset multiplier after 10 seconds
-            this.multiplierTimer = setTimeout(() => {
-                this.currentMultiplier = 1;
-                this.consecutiveMatches = 0;
-            }, 10000);
         }
     }
 
@@ -162,6 +195,7 @@ class NumGrid {
 
     handleTileClick(tile) {
         if (this.isPreviewMode || 
+            this.isGameOver ||
             this.selectedTiles.length === 2 || 
             tile.classList.contains('matched') || 
             tile.classList.contains('selected')) {
@@ -236,6 +270,19 @@ class NumGrid {
         // Check if all tiles are matched
         const remainingTiles = this.grid.querySelectorAll('.tile:not(.matched)');
         if (remainingTiles.length === 0) {
+            // Add board clear bonus
+            this.score += 10;
+            this.scoreElement.textContent = this.score;
+            
+            // Show board clear message
+            const clearMessage = document.createElement('div');
+            clearMessage.className = 'clear-message';
+            clearMessage.textContent = 'Board Clear! +10 points';
+            this.grid.parentElement.insertBefore(clearMessage, this.grid);
+            
+            // Remove message after 2 seconds
+            setTimeout(() => clearMessage.remove(), 2000);
+            
             // Pause the timer
             clearInterval(this.timer);
             
@@ -263,8 +310,21 @@ class NumGrid {
         if (this.multiplierTimer) {
             clearTimeout(this.multiplierTimer);
         }
+        this.isGameOver = true;
         this.startButton.disabled = false;
         this.gridSizeSelect.disabled = false;
+
+        // Reveal all remaining unmatched tiles
+        const remainingTiles = this.grid.querySelectorAll('.tile:not(.matched)');
+        remainingTiles.forEach(tile => {
+            tile.style.backgroundColor = tile.dataset.color;
+            tile.textContent = tile.dataset.number;
+            // Add a slight delay between each tile reveal for a nice effect
+            setTimeout(() => {
+                tile.style.opacity = '0.7';  // Make it slightly transparent to indicate it's not matched
+            }, 100);
+        });
+
         alert(`Game Over! Your score: ${this.score}`);
     }
 }

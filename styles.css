@@ -280,4 +280,46 @@ body {
     animation: fadeInOut 2s ease-in-out;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.title-screen {
+    text-align: center;
+    padding: 20px;
+}
+
+.game-screen {
+    text-align: center;
+}
+
+#newGameButton {
+    width: 100%;
+    padding: 10px;
+    font-size: 1.2em;
+    background-color: #3498db;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    margin-top: 20px;
+}
+
+#newGameButton:hover {
+    background-color: #2980b9;
+}
+
+.clear-message {
+    position: absolute;
+    top: -40px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #f1c40f;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-size: 1.2em;
+    font-weight: bold;
+    z-index: 100;
+    animation: fadeInOut 2s ease-in-out;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 } 
